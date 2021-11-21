@@ -36,12 +36,13 @@ app.get('/room',function(request,response){
 	})
   response.send(rooms);
 });
-
+var imageData;
 // 소켓 서버를 생성합니다
 var io = socketio.listen(server);
 io.sockets.on('connection',function(socket){
 	var roomId = "";
-
+	socket.emit('setup', imageData);
+	
 	socket.on('join',function(data){
 		socket.join(data);
 		roomId = data;
@@ -49,10 +50,14 @@ io.sockets.on('connection',function(socket){
 
 	socket.on('draw',function(data){
 		io.sockets.in(roomId).emit('line',data);
-
+		imageData = data.imageData;
 	});
 	socket.on('create_room',function(data){
 		io.sockets.emit('create_room',data.toString());
 		
 	});
+	 // Users modified image, let's save it
+	 socket.on('save-data', function (data) {
+        imageData = data;
+    });
 });

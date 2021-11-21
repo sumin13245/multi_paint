@@ -32,12 +32,18 @@
                 $('#colorpicker').farbtastic(function(data){
                     color = data;
                 });
+                // load image from data url
+               
+
                 //이벤트를 연결합닏 
                 canvas.addEventListener('mousedown',function(event){
                     isDown = true;
                     oldPoint = new Point(event,this);
                 });
-                canvas.addEventListener('mouseup',function(event){ isDown = false; });
+                canvas.addEventListener('mouseup',function(event){ 
+                    isDown = false;
+                    socket.emit('save-data', canvas.toDataURL());
+                });
                 canvas.addEventListener('mousemove',function(event){
                     if(isDown){
                         newPoint = new Point(event,this);
@@ -50,9 +56,34 @@
                             y2:newPoint.y
                         });
                         oldPoint = newPoint;
-                        
+
                     }
                 });
+                // 스마트폰 이벤트 지금 안들으니 수정예정 
+                canvas.addEventListener('touchstart',function(event){
+                    isDown = true;
+                    oldPoint = new Point(event,this);
+                });
+                canvas.addEventListener('touchmove',function(event){ 
+                    isDown = false;
+                    socket.emit('save-data', canvas.toDataURL());
+                });
+                canvas.addEventListener('touchend',function(event){
+                    if(isDown){
+                        newPoint = new Point(event,this);
+                        socket.emit('draw',{
+                            width:width,
+                            color:color,
+                            x1:oldPoint.x,
+                            y1:oldPoint.y,
+                            x2:newPoint.x,
+                            y2:newPoint.y
+                        });
+                        oldPoint = newPoint;
+
+                    }
+                });
+
                 $('#sliderA').change(function(){
                     width = $(this).val();
                 });
@@ -70,6 +101,15 @@
                     context.moveTo(data.x1,data.y1);
                     context.lineTo(data.x2,data.y2);
                     context.stroke();
+                });
+                socket.on('setup', function (dataUrl) {
+                   if (dataUrl) {
+                        var imageObj = new Image();
+                        imageObj.onload = function () {
+                        context.drawImage(this, 0, 0);
+                        };
+                      imageObj.src = dataUrl;
+                    }
                 });
 
             });
