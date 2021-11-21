@@ -7,7 +7,7 @@
         <script>
             $(document).ready(function(){
                 //Ajax 수행
-                $getJSON('/room',function(data){
+                $.getJSON('/room',function(data){
                     //반복을 수행하니다
                     $.each(data,function(index,item){
                         //문서 객체를 추가합ㅂ니다
@@ -37,7 +37,6 @@
                 $('body > button').click(function(){
                     //변수선언
                     var room = $('#room').val();
-
                     //소켓이벤트를 발생시킵니ㅏㄷ 
                     socket.emit('create_room',room);
                     // 페이지 이동 

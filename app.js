@@ -22,7 +22,7 @@ app.get('/',function(request,response){
 	});
 });
 
-app.get('canvas/:room',function(request,response){
+app.get('/canvas/:room',function(request,response){
 	fs.readFile('Canvas.html','utf8',function(error,data){
 		response.send(ejs.render(data,{
 			room: request.params.room
