@@ -11,7 +11,8 @@ app.use(express.static('public'));
 
 //웹 서버를 실행합니다
 var server = http.createServer(app);
-server.listen(80, function(){
+const PORT = process.env.PORT;
+server.listen(PORT, function(){
 	console.log('server running at http://127.0.0.1:80');
 });
 
