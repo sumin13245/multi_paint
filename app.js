@@ -11,8 +11,8 @@ app.use(express.static('public'));
 
 //웹 서버를 실행합니다
 var server = http.createServer(app);
-server.listen("https://haha13245multipaint2021.netlify.app/", function(){
-	console.log('server running at http://127.0.0.1:80');
+server.listen(80,"https://haha13245multipaint2021.netlify.app/", function(){
+	console.log('server running at http://127.0.0.1:52273');
 });
 
 //라우트를 수행합니다 라우트 = 길 라우팅 = 길찾기 길을 수행한다는게 무슨 뜻이지 아 길을 설정해두는건가보다
