@@ -9,12 +9,16 @@ var fs = require('fs');
 var app = express();
 app.use(express.static('public'));
 
+
 //웹 서버를 실행합니다
 var server = http.createServer(app);
 const PORT = process.env.PORT;
+
 server.listen(PORT, function(){
-	console.log('server running at http://127.0.0.1:80');
+	console.log('server running at http://127.0.0.1:8080');
 });
+
+
 
 //라우트를 수행합니다 라우트 = 길 라우팅 = 길찾기 길을 수행한다는게 무슨 뜻이지 아 길을 설정해두는건가보다
 app.get('/',function(request,response){
@@ -30,12 +34,19 @@ app.get('/canvas/:room',function(request,response){
 		}));
 	});
 });
+app.get('/canvas-show/:room',function(request,response){
+	fs.readFile('CanvasShow.html','utf8',function(error,data){
+		response.send(ejs.render(data,{
+			room: request.params.room
+		}));
+	});
+});
 
 app.get('/room',function(request,response){
 	var rooms = Object.keys(io.sockets.adapter.rooms).filter(function(item){
 		return item.indexOf('/')<0;
 	})
-  response.send(rooms);
+	response.send(rooms);
 });
 var imageData;
 // 소켓 서버를 생성합니다
@@ -43,7 +54,7 @@ var io = socketio.listen(server);
 io.sockets.on('connection',function(socket){
 	var roomId = "";
 	socket.emit('setup', imageData);
-	
+
 	socket.on('join',function(data){
 		socket.join(data);
 		roomId = data;
@@ -55,10 +66,10 @@ io.sockets.on('connection',function(socket){
 	});
 	socket.on('create_room',function(data){
 		io.sockets.emit('create_room',data.toString());
-		
+
 	});
-	 // Users modified image, let's save it
-	 socket.on('save-data', function (data) {
-        imageData = data;
-    });
+	// Users modified image, let's save it
+	socket.on('save-data', function (data) {
+		imageData = data;
+	});
 });
