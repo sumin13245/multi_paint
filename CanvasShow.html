@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+<!--        <link rel = "stylesheet" href = "/farbtastic.css"/>-->
+        <script src = "//code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+<!--        <script src = "/farbtastic.js"></script>-->
+        <script>
+            //Point 생성자 함수를 생성합니다
+            function Point(event,target){
+                this.x = event.pageX - $(target).position().left;
+                this.y = event.pageY - $(target).position().top;
+            }
+        </script>
+        <script>
+            $(document).ready(function(){
+                //Canvas 객체를 추출합니다.
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+                
+
+                //변수를 선언합니다 
+                var width = 5;
+                var opacity = 1.0;
+                var pressure = 1.0;
+                var color = '#000000';
+                var isDown = false;
+                var newPoint,oldPoint;
+
+                // //UI 를 구성합니다
+                // $('#colorpicker').farbtastic(function(data){
+                //     color = data;
+                // });
+                // // load image from data url
+                //
+
+                //이벤트를 연결합닏 
+                canvas.addEventListener('mousedown',function(event){
+                    isDown = true;
+                    oldPoint = new Point(event,this);
+                });
+                canvas.addEventListener('mouseup',function(event){ 
+                    isDown = false;
+                    socket.emit('save-data', canvas.toDataURL());
+                });
+                canvas.addEventListener('mousemove',function(event){
+                    if(isDown){
+                        newPoint = new Point(event,this);
+                        socket.emit('draw',{
+                            width:width,
+                            color:color,
+                            x1:oldPoint.x,
+                            y1:oldPoint.y,
+                            x2:newPoint.x,
+                            y2:newPoint.y
+                        });
+                        oldPoint = newPoint;
+
+                    }
+                });
+                // 스마트폰 이벤트 지금 안들으니 수정예정  
+                canvas.addEventListener('touchstart',function(event){
+                    isDown = true;
+                    oldPoint = new Point(event,this);
+                });
+                canvas.addEventListener('touchmove',function(event){ 
+                    isDown = false;
+                    socket.emit('save-data', canvas.toDataURL());
+                });
+                canvas.addEventListener('touchend',function(event){
+                    if(isDown){
+                        newPoint = new Point(event,this);
+                        socket.emit('draw',{
+                            width:width,
+                            color:color,
+                            x1:oldPoint.x,
+                            y1:oldPoint.y,
+                            x2:newPoint.x,
+                            y2:newPoint.y
+                        });
+                        oldPoint = newPoint;
+
+                    }
+                });
+
+                $('#sliderA').change(function(){
+                    width = $(this).val();
+                });
+                $('#sliderB').change(function(){
+                    opacity = $(this).val()/100;
+                });
+                //소켓 이벤트를 연결합니다 
+                var socket = io.connect();
+                socket.emit('join','<%= room %>');
+                socket.on('line',function(data){
+                    context.lineWidth = data.width;
+                    context.strokeStyle = data.color;
+                    context.globalAlpha = opacity*pressure;
+                    context.beginPath();
+                    context.moveTo(data.x1,data.y1);
+                    context.lineTo(data.x2,data.y2);
+                    context.stroke();
+                });
+                socket.on('setup', function (dataUrl) {
+                   if (dataUrl) {
+                        var imageObj = new Image();
+                        imageObj.onload = function () {
+                        context.drawImage(this, 0, 0);
+                        };
+                      imageObj.src = dataUrl;
+                    }
+                });
+
+            });
+        </script>
+        <script>
+        </script>
+    </head>
+    <body>
+        <table border="0">
+            <tr>
+                <td rowspan="3">
+                    <!--캔버스-->
+                    <canvas id = "canvas" width="1200" height="800"></canvas>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>
