@@ -12,7 +12,7 @@ app.use(express.static('public'));
 
 //웹 서버를 실행합니다
 var server = http.createServer(app);
-const PORT = process.env.PORT;
+const PORT = 8080;
 
 server.listen(PORT, function(){
 	console.log('server running at http://127.0.0.1:8080');
